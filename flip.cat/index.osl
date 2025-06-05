@@ -1,0 +1,118 @@
+p @= data
+
+if p.fetched != true (
+  p.size = 3
+  p.r.size = 350
+  
+  sound "https://raw.githubusercontent.com/NexusKitten/roturwebcat/main/flip.cat/assets/win.wav" "load" "win"
+  sound "https://raw.githubusercontent.com/NexusKitten/roturwebcat/main/flip.cat/assets/mow.mp3" "load" "mow"
+  
+  p.events.init = true
+  p.mute = false
+  p.fetched = true
+)
+
+if p.events.init == true (
+  p.events.init = false
+  p.events.win = false
+  p.temp.map = []
+  loop p.size (
+    p.temp.row = []
+    loop p.size (
+      void p.temp.row.append(random(0, 1))
+    )
+    void p.temp.map.append(p.temp.row)
+  )
+  p.game.map = p.temp.map
+  
+  p.cat = random(1, 8)
+  image "load" "https://raw.githubusercontent.com/NexusKitten/roturwebcat/main/flip.cat/assets/catcard@.png".replace("@", p.cat) "cat"
+
+  p.game.moves = 0
+)
+
+if p.events.win == true (
+  p.events.flip = false
+  if timestamp > p.events.timewin + 3000 (
+    p.events.init = true
+  )
+)
+
+if p.events.flip == true (
+  p.events.flip = false
+  sound "mow" "speed" random(.5,3)
+  sound "mow" "start" 0
+  p.game.moves ++
+  p.grid.x = [-1, 0, 1, 0, 0]
+  p.grid.y = [0, 0, 0, -1, 1]
+  for i 5 (
+    p.temp.x = p.flip.x + p.grid.x[i]
+    p.temp.y = p.flip.y + p.grid.y[i]
+    p.temp.cel = p.game.map[p.temp.y][p.temp.x]
+    if p.temp.cel.isType("number") (
+      p.game.map[p.temp.y][p.temp.x] = p.temp.cel === 1 ? 0 1
+    )
+  )
+  if p.game.map == (1 to p.size).fill((1 to p.size).fill(1)) (
+    sound "win" "start" 0
+    p.events.win = true
+    p.events.timewin = timestamp
+  ) else (
+    sound "mow" "speed" random(.5,3)
+    sound "mow" "start" 0
+  )
+)
+
+p.r.dist = p.r.size / p.size
+p.r.im = p.r.dist * 0.96
+p.r.corner = p.r.size - p.r.dist / 2
+goto 0 - p.r.corner p.r.corner
+for y p.size (
+  for x p.size (
+    p.temp.state = p.game.map[y][x]
+    square p.r.im p.r.im : c#user.theme.primary
+    if mouse_touching (
+      cursor "pointer"
+      if onclick (
+        p.events.flip = true
+        p.flip.x = x
+        p.flip.y = y
+      )
+    )
+    if p.temp.state === 1 (
+      image "cat" p.r.im p.r.im
+    )
+    change_x p.r.dist
+  )
+  set_x 0 - p.r.corner
+  change_y 0 - p.r.dist
+)
+
+goto 0 225
+centext "Moves: " ++ p.game.moves 20 : c#user.theme.text
+
+loc 2 -2 25 25
+icon p.mute ? "volume-mute" "volume-max" 1
+if mouse_touching (
+  cursor "pointer"
+  if onclick (
+    p.mute = p.mute.not
+    sound "mow" "volume" p.mute ? 0 100
+    sound "win" "volume" p.mute ? 0 100
+  )
+)
+change_x 90
+square 120 30 : c#user.theme.secondary
+if mouse_touching (
+  cursor "pointer"
+  if onclick (
+    p.size ++
+    if p.size == 7 (
+      p.size = 3
+    )
+    p.events.init = true
+  )
+)
+centext "3 x 3" 12 : c#user.theme.text
+
+current_tab_name = {"title":"Flip Cats","icon":"grid"}
