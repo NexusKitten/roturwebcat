@@ -113,6 +113,6 @@ if mouse_touching (
     p.events.init = true
   )
 )
-centext "3 x 3" 12 : c#user.theme.text
+centext p.size + "x" + p.size 12 : c#user.theme.text
 
 current_tab_name = {"title":"Flip Cats","icon":"grid"}
