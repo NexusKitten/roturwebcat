@@ -1,1 +1,58 @@
+p @= data
 
+if p.fetched != true (
+  // Inititalize variables
+  p.starttime = timestamp
+  p.states = (1 to 10).fill(1)
+  p.scroll = 0
+  p.rpm = 60
+  input_rotpermin = p.rpm.toStr()
+  p.mpr = 1 / p.rpm
+
+  // Anime girl fetch quest
+  p.route = "https://raw.githubusercontent.com/NexusKitten/roturwebcat/main/ratio.cat/assets/frame@.png"
+  p.promise @= Promise.new(def() -> (
+    for i 16 (
+      image "load" p.route.replace("@", i) "frame" ++ i
+    )
+  ))
+  
+  p.fetched = true
+)
+
+// Calculate ratios
+p.iteration = (timestamp - p.starttime / 60000 / p.mpr * 16).ceiling()
+p.temp = p.iteration
+for i p.states.len (
+  p.states[i] = p.temp - 1 % 16 + 1
+  p.temp = (p.temp / 16).ceiling()
+)
+
+// Render spinny anime girls
+goto 0 0
+square frame.width 400 : c#user.theme.primary
+each i item p.states (
+  goto frame.left + (i * 200) + p.scroll 0
+  image "frame" ++ item
+  centext "1 :" + (16 ^ (i - 1)) 10 : chy#-150 c#user.theme.text
+)
+
+// Scroll logic
+p.rightmost = x_position - p.scroll - 200
+p.scroll -= scroll_velocity
+p.scroll = p.scroll.clamp(-1 * p.rightmost, 0)
+goto abs(p.scroll / p.rightmost) * frame.width + frame.left -200
+square 2000 10 : c#user.theme.secondary
+square 10 10 : c#user.theme.tertiary
+
+// Change RPM
+goto 0 230
+input 75 45 "rotpermin" "60" 10 user.theme.text : c#user.theme.primary
+input_rotpermin = input_rotpermin.toNum().toStr()
+p.rpm = input_rotpermin.toNum()
+p.mpr = 1 / p.rpm
+goto 0 260
+centext "RPM:" 10 : c#user.theme.text
+
+
+current_tab_name = {"title":"Anime Girl Ratio","icon":"cog"}
