@@ -10,12 +10,8 @@ if p.fetched != true (
   p.mpr = 1 / p.rpm
 
   // Anime girl fetch quest
+  // removed the anime girl fetch quest :(
   p.route = "https://raw.githubusercontent.com/NexusKitten/roturwebcat/main/ratio.cat/assets/frame@.png"
-  p.promise @= Promise.new(def() -> (
-    for i 16 (
-      image "load" p.route.replace("@", i) "frame" ++ i
-    )
-  ))
   
   p.fetched = true
 )
@@ -33,7 +29,7 @@ goto 0 0
 square frame.width 400 : c#user.theme.primary
 each i item p.states (
   goto frame.left + (i * 200) + p.scroll 0
-  image "frame" ++ item
+  image p.route.replace("@", item)
   centext "1 :" + (16 ^ (i - 1)) 10 : chy#-150 c#user.theme.text
 )
 
